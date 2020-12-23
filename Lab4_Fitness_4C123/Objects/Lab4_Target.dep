@@ -1,5 +1,5 @@
 Dependencies for Project 'Lab4', Target 'Target': (DO NOT MODIFY !)
-F (.\Lab4.c)(0x57BC6494)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I ../inc-I.\RTE\_Target-IC:\Users\Calvin\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include-IC:\Users\Calvin\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-D__UVISION_VERSION="528" -D_RTE_ -DTM4C123GH6PM-o .\objects\lab4.o --omf_browse .\objects\lab4.crf --depend .\objects\lab4.d)
+F (.\Lab4.c)(0x5FE2B861)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I ../inc-I.\RTE\_Target-IC:\Users\Calvin\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include-IC:\Users\Calvin\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-D__UVISION_VERSION="528" -D_RTE_ -DTM4C123GH6PM-o .\objects\lab4.o --omf_browse .\objects\lab4.crf --depend .\objects\lab4.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5CEC22A2)
 I (../inc/BSP.h)(0x57BA42C4)
 I (../inc/Profile.h)(0x57587A54)
@@ -11,7 +11,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5CEC22A2)
 I (..\inc\BSP.h)(0x57BA42C4)
 I (..\inc\../inc/tm4c123gh6pm.h)(0x5388B4CA)
 F (.\osasm.s)(0x5FE293FB)(--cpu Cortex-M4 --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\_Target-IC:\Users\Calvin\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include-IC:\Users\Calvin\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123--pd "__UVISION_VERSION SETA 528" --pd "_RTE_ SETA 1" --pd "TM4C123GH6PM SETA 1"--list .\listings\osasm.lst --xref -o .\objects\osasm.o --depend .\objects\osasm.d)
-F (.\os.c)(0x57D80B2A)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I ../inc-I.\RTE\_Target-IC:\Users\Calvin\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include-IC:\Users\Calvin\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-D__UVISION_VERSION="528" -D_RTE_ -DTM4C123GH6PM-o .\objects\os.o --omf_browse .\objects\os.crf --depend .\objects\os.d)
+F (.\os.c)(0x5FE2B7F5)(--c99 -c --cpu Cortex-M4 -D__EVAL -g -O0 --apcs=interwork --split_sections --signed_chars -I ../inc-I.\RTE\_Target-IC:\Users\Calvin\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include-IC:\Users\Calvin\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-D__UVISION_VERSION="528" -D_RTE_ -DTM4C123GH6PM-o .\objects\os.o --omf_browse .\objects\os.crf --depend .\objects\os.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5CEC22A2)
 I (os.h)(0x57D77A56)
 I (../inc/CortexM.h)(0x56B73956)

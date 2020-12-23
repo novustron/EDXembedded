@@ -485,7 +485,7 @@ int main(void){
 	OS_PeriodTrigger0_Init(&TakeSoundData,1);  // every 1 ms
 	OS_PeriodTrigger1_Init(&TakeAccelerationData,100); //every 100ms
   // when grading change 1000 to 4-digit number from edX
-  TExaS_Init(GRADER, 8864  );          // initialize the Lab 4 grader
+  TExaS_Init(GRADER, 2314  );          // initialize the Lab 4 grader
 //  TExaS_Init(LOGICANALYZER, 1000); // initialize the Lab 4 logic analyzer
   OS_Launch(BSP_Clock_GetFreq()/THREADFREQ); // doesn't return, interrupts enabled in here
   return 0;             // this never executes
@@ -759,7 +759,7 @@ void TaskR(void){ // consumer
 		OS_EdgeTrigger_Restart();
   }
 }
-int main_step3(void){
+int main_step4(void){
   OS_Init();
   Profile_Init();  // initialize the 7 hardware profiling pins
   OS_InitSemaphore(&sI, 0);

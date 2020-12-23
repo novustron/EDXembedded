@@ -17,12 +17,13 @@ void StartOS(void);
 #define NUMTHREADS  8        // maximum number of threads
 #define NUMPERIODIC 2        // maximum number of periodic threads
 #define STACKSIZE   100      // number of 32-bit words in stack per thread
+#define LOWESTPRIORITY 255 // 255
 struct tcb{
   int32_t *sp;       // pointer to stack (valid for threads not running
   struct tcb *next;  // linked-list pointer
 	int32_t *blocked;// nonzero if blocked on this semaphore
 	uint32_t sleepTime; // nonzero if this thread is sleeping
-	uint8_t Priority;  // 0 is highest, 254 lowest
+	uint8_t priority;  // 0 is highest, 254 lowest
 	
 //*FILL THIS IN****
 };
@@ -43,6 +44,7 @@ void OS_Init(void){
   BSP_Clock_InitFastest();// set processor clock to fastest speed
 // perform any initializations needed, 
 // set up periodic timer to run runperiodicevents to implement sleeping
+	
   
 }
 
@@ -82,7 +84,9 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
                   void(*thread6)(void), uint32_t p6,
                   void(*thread7)(void), uint32_t p7){
 // **similar to Lab 3. initialize priority field****
- 
+										
+  int32_t status = StartCritical();
+										
 	tcbs[0].next = &tcbs[1]; // 0 points to 1
 	tcbs[1].next = &tcbs[2]; // 1 points to 2
 	tcbs[2].next = &tcbs[3]; // 2 points to 3
@@ -92,23 +96,36 @@ int OS_AddThreads(void(*thread0)(void), uint32_t p0,
   tcbs[6].next = &tcbs[7]; // 	
   tcbs[7].next = &tcbs[0]; // 											
 	
-  tcbs[0].blocked = 0;
-	tcbs[1].blocked = 0;
-	tcbs[2].blocked = 0;
-	tcbs[3].blocked = 0;
-	tcbs[4].blocked = 0;
-	tcbs[5].blocked = 0;										
-										
-	tcbs[0].sleepTime = 0;			
-  tcbs[1].sleepTime = 0;	
-  tcbs[2].sleepTime = 0;	
-  tcbs[3].sleepTime = 0;	
-  tcbs[4].sleepTime = 0;								
-  tcbs[5].sleepTime = 0;
+
+	for(int i = 0; i<NUMTHREADS; i++)
+	{
+		tcbs[i].blocked = 0;
+		tcbs[i].sleepTime = 0;
+	}
 	
+	tcbs[0].priority = p0;
+	tcbs[1].priority = p1;
+	tcbs[2].priority = p2;
+	tcbs[3].priority = p3;
+	tcbs[4].priority = p4;
+	tcbs[5].priority = p5;
+	tcbs[6].priority = p6;
+	tcbs[7].priority = p7;
 	
+	SetInitialStack(0); Stacks[0][STACKSIZE-2] = (int32_t)(thread0); // PC					
+	SetInitialStack(1); Stacks[1][STACKSIZE-2] = (int32_t)(thread1); // PC
+	SetInitialStack(2); Stacks[2][STACKSIZE-2] = (int32_t)(thread2); // PC											
+	SetInitialStack(3); Stacks[3][STACKSIZE-2] = (int32_t)(thread3); // PC
+	SetInitialStack(4); Stacks[4][STACKSIZE-2] = (int32_t)(thread4); // PC
+	SetInitialStack(5); Stacks[5][STACKSIZE-2] = (int32_t)(thread5); // PC
+	SetInitialStack(6); Stacks[6][STACKSIZE-2] = (int32_t)(thread6); // PC
+	SetInitialStack(7); Stacks[7][STACKSIZE-2] = (int32_t)(thread7); // PC
 	
-	
+
+  RunPt = 	&tcbs[0];
+
+  EndCritical(status);	
+
   return 1;               // successful
 }
 
@@ -117,7 +134,35 @@ void static runperiodicevents(void){
 // ****IMPLEMENT THIS****
 // **DECREMENT SLEEP COUNTERS
 // In Lab 4, handle periodic events in RealTimeEvents
+	uint32_t i;
 	
+  for(i=0; i<NUMTHREADS; i++)
+	{
+		if(tcbs[i].sleepTime)
+		{
+		  tcbs[i].sleepTime--;
+		}
+	}
+//	uint32_t i;
+//	
+//  for(i=0; i<NUMTHREADS; i++)
+//	{
+//		if(tcbs[i].sleepTime)
+//		{
+//		  tcbs[i].sleepTime--;
+//		}
+//		
+//	}
+//	
+//	  for (i = 0; i < PeriodicThreadCounter; i++) {
+//    if (PeriodicThreads[i].timeLeft == 0) {
+//      PeriodicThreads[i].thread();
+//      PeriodicThreads[i].timeLeft = PeriodicThreads[i].period-1; // reload
+//    } else {
+//      PeriodicThreads[i].timeLeft--;
+//    }
+//  }
+//		
   
 }
 
@@ -132,6 +177,9 @@ void OS_Launch(uint32_t theTimeSlice){
   SYSPRI3 =(SYSPRI3&0x00FFFFFF)|0xE0000000; // priority 7
   STRELOAD = theTimeSlice - 1; // reload value
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
+	
+	BSP_PeriodicTask_Init(&runperiodicevents, 1000,1);
+	
   StartOS();                   // start on the first task
 }
 // runs every ms
@@ -140,7 +188,24 @@ void Scheduler(void){      // every time slice
 // look at all threads in TCB list choose
 // highest priority thread not blocked and not sleeping 
 // If there are multiple highest priority (not blocked, not sleeping) run these round robin
-
+  
+	int curr_max = 255;
+	tcbType *currPt = RunPt; 
+	tcbType *bestPt;
+	
+	do // search for highest thread not blocked or sleeping
+	{
+		currPt = currPt->next; // skip at least one
+	
+	 if( (currPt->priority < curr_max) && (currPt->sleepTime == 0) && (currPt->blocked==0))
+	  {
+	  bestPt = currPt;
+    curr_max = currPt->priority;
+	  }
+  }while(currPt != RunPt); // look at all possible threads
+	
+	RunPt = bestPt; 
+	
 }
 
 //******** OS_Suspend ***************
@@ -163,6 +228,11 @@ void OS_Sleep(uint32_t sleepTime){
 // ****IMPLEMENT THIS****
 // set sleep parameter in TCB, same as Lab 3
 // suspend, stops running
+	DisableInterrupts();
+	RunPt->sleepTime = sleepTime;
+	EnableInterrupts();
+	
+	OS_Suspend();
 
 }
 
@@ -174,7 +244,7 @@ void OS_Sleep(uint32_t sleepTime){
 void OS_InitSemaphore(int32_t *semaPt, int32_t value){
 // ****IMPLEMENT THIS****
 // Same as Lab 3
- 
+	*semaPt = value;
 }
 
 // ******** OS_Wait ************
@@ -186,7 +256,18 @@ void OS_InitSemaphore(int32_t *semaPt, int32_t value){
 void OS_Wait(int32_t *semaPt){
 // ****IMPLEMENT THIS****
 // Same as Lab 3
-  
+	DisableInterrupts();
+	*semaPt = (*semaPt) - 1;
+	
+	if (*semaPt < 0) // [?] why not less or equal to?
+	{
+		//block this thread
+		RunPt -> blocked = semaPt;
+		EnableInterrupts();
+		OS_Suspend();
+		
+	}
+	EnableInterrupts();
 }
 
 // ******** OS_Signal ************
@@ -198,7 +279,21 @@ void OS_Wait(int32_t *semaPt){
 void OS_Signal(int32_t *semaPt){
 // ****IMPLEMENT THIS****
 // Same as Lab 3
-  
+	tcbType *tempPt;
+	DisableInterrupts();
+	
+	*semaPt = *semaPt + 1;
+	if (*semaPt <= 0) // [?] why -> someone must have just woken up / if semaphore was 0 and u called signal, it would just increment it to one and 
+	{
+		//Wake up one thread
+		tempPt = RunPt->next; // search for thread blocked on this semaphore (address) 
+		while( tempPt->blocked != semaPt)
+		{
+			tempPt = tempPt -> next;
+		}
+		tempPt->blocked = 0; //wakeup this one
+	}
+	EnableInterrupts();
 }
 
 #define FSIZE 10    // can be any size
@@ -220,6 +315,9 @@ uint32_t LostData;  // number of lost pieces of data
 void OS_FIFO_Init(void){
 // ****IMPLEMENT THIS****
 // Same as Lab 3
+	PutI = GetI = 0;
+	OS_InitSemaphore(&CurrentSize, 0); // blocking semaphore initialized
+	LostData = 0;
   
 }
 
@@ -233,8 +331,18 @@ void OS_FIFO_Init(void){
 int OS_FIFO_Put(uint32_t data){
 // ****IMPLEMENT THIS****
 // Same as Lab 3
-	
- return 0; // success
+	if(CurrentSize == FSIZE)
+	{
+		LostData++;
+		return -1; // full
+	}
+	else
+	{
+		Fifo[PutI] = data; // Put
+		PutI = (PutI+1)%FSIZE; // [?] what does this do -> update circular buffer index
+	  OS_Signal(&CurrentSize);
+		return 0; // success
+	}
 }
 
 // ******** OS_FIFO_Get ************
@@ -247,6 +355,9 @@ int OS_FIFO_Put(uint32_t data){
 uint32_t OS_FIFO_Get(void){uint32_t data;
 // ****IMPLEMENT THIS****
 // Same as Lab 3
+	OS_Wait(&CurrentSize); // block if empty
+	data = Fifo[GetI]; // get
+	GetI = (GetI+1)%FSIZE; // place to get next
  return data;
 }
 // *****periodic events****************
@@ -272,6 +383,7 @@ void RealTimeEvents(void){int flag=0;
       OS_Suspend();
     }
   }
+
 }
 // ******** OS_PeriodTrigger0_Init ************
 // Initialize periodic timer interrupt to signal 
@@ -322,6 +434,23 @@ void OS_EdgeTrigger_Init(int32_t *semaPt, uint8_t priority){
 // (f) arm interrupt on PD6
 // priority on Port D edge trigger is NVIC_PRI0_R	31 – 29
 // enable is bit 3 in NVIC_EN0_R
+	SYSCTL_RCGCGPIO_R |= 0x00000008; // 1) activate clock for Port D
+	while((SYSCTL_PRGPIO_R&0x08) == 0){}; // allow time for clock to stabilize
+	GPIO_PORTD_AMSEL_R &= ~0x40; // 2) disable analog on PD6
+	GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0xF0FFFFFF)+0x00000000; // 3) configure PD6 as GPIO
+	GPIO_PORTD_DIR_R &= ~0x40; // 4) make PD6 input
+  GPIO_PORTD_AFSEL_R &= ~0x40;// 5) disable alt funct on PD6
+  GPIO_PORTD_PUR_R &= ~0x40; // disable pull-up on PD6
+  GPIO_PORTD_DEN_R |= 0x40; // 6) enable digital I/O on PD6  
+	GPIO_PORTD_IS_R &= ~0x40; // PD6 is edge-sensitive 
+	GPIO_PORTD_IBE_R &= ~0x40; // PD6 is not both edges 
+	GPIO_PORTD_IEV_R &= ~0x40;  // PD6 is falling edge event 
+	GPIO_PORTD_ICR_R = 0x40; // clear PD6 flag
+	GPIO_PORTD_IM_R |= 0x40; // arm interrupt on PD6
+	NVIC_PRI0_R = (NVIC_PRI0_R&0x1FFFFFFF)|((uint32_t)(priority) << 29); // priority on Port D edge trigger is NVIC_PRI0_R	31 ? 29
+	NVIC_EN0_R = 0x00000008; // enable is bit 3 in NVIC_EN0_R
+	
+	
  }
 
 // ******** OS_EdgeTrigger_Restart ************
@@ -333,12 +462,18 @@ void OS_EdgeTrigger_Restart(void){
 //***IMPLEMENT THIS***
 // rearm interrupt 3 in NVIC
 // clear flag6
+	GPIO_PORTD_IM_R |= 0x40; // rearm interrupt 3 in NVIC
+  GPIO_PORTD_ICR_R = 0x40; // clear flag6
 }
 void GPIOPortD_Handler(void){
 //***IMPLEMENT THIS***
 	// step 1 acknowledge by clearing flag
   // step 2 signal semaphore (no need to run scheduler)
   // step 3 disarm interrupt to prevent bouncing to create multiple signals
+		GPIO_PORTD_ICR_R = 0x40; // step 1 acknowledge by clearing flag
+  OS_Signal(edgeSemaphore); // step 2 signal semaphore (no need to run scheduler)
+  GPIO_PORTD_IM_R &= ~0x40;// step 3 disarm interrupt to prevent bouncing to create multiple signals
+	OS_Suspend();
 }
 
 
