@@ -45,6 +45,7 @@ void SetInitialStack(int i){
   //***YOU IMPLEMENT THIS FUNCTION*****
   tcbs[i].sp = &Stacks[i][STACKSIZE-16]; // thread stack pointer
   Stacks[i][STACKSIZE-1] = 0x01000000; // Thumb bit
+	// PC is R15?
   Stacks[i][STACKSIZE-3] = 0x14141414; // R14
   Stacks[i][STACKSIZE-4] = 0x12121212; // R12
   Stacks[i][STACKSIZE-5] = 0x03030303; // R3
