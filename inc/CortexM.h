@@ -3,6 +3,27 @@
 // Daniel and Jonathan Valvano
 // February 7, 2016
 
+/* This example accompanies the books
+   "Embedded Systems: Introduction to ARM Cortex M Microcontrollers",
+      ISBN: 978-1469998749, Jonathan Valvano, copyright (c) 2016
+   "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
+      ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2016
+   "Embedded Systems: Real-Time Operating Systems for ARM Cortex-M Microcontrollers",
+      ISBN: 978-1466468863, , Jonathan Valvano, copyright (c) 2016
+
+ Copyright 2016 by Jonathan W. Valvano, valvano@mail.utexas.edu
+    You may use, edit, run or distribute this file
+    as long as the above copyright notice remains
+ THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+ OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+ VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+ OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ For more information about my classes, my research, and my books, see
+ http://users.ece.utexas.edu/~valvano/
+ */
+
+
 #define STCTRL          (*((volatile uint32_t *)0xE000E010))
 #define STRELOAD        (*((volatile uint32_t *)0xE000E014))
 #define STCURRENT       (*((volatile uint32_t *)0xE000E018))
@@ -52,3 +73,8 @@ void EndCritical(long sr);    // restore I bit to previous value
 // Outputs: none
 void WaitForInterrupt(void);  
 
+// ------------Clock_Delay1ms------------
+// Simple delay function which delays about n milliseconds.
+// Inputs: n, number of msec to wait
+// Outputs: none
+void Clock_Delay1ms(uint32_t n);
